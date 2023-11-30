@@ -1,69 +1,59 @@
 # Updating R.swift
 
-We use our own version of R.swift forked from https://github.com/mac-cain13/R.swift.
+We use our own version of R.swift forked from [https://github.com/mac-cain13/R.swift](https://github.com/mac-cain13/R.swift).
+
+The Affirm repo is
+
+Our R.swift extensions:
+
+* Adds new CLI flag to turn off missing string key warnings.
+  - This is the `silenceLanguageWarnings` command flag.
+
+* Adds a default language to each generated string function.
+  - Defaults to the current value of `R.affirm_preferredLanguageIdentifier`.
+  - Changeable during runtime.
+
+* R.swift internal change that allows struct generators to create either var or let options on variables.
+  - This was added to allow a `R.affirm_preferredLanguageIdentifier` to change during runtime.
+
+* Added `AffirmLocalizedString` and `AffirmDisplayKey` to R.swift string generation to prevent
+  leaking string key names if a language bundle is not found. This is only affects keys in the
+  `Sensitive.strings` language table.
 
 ## Development Process
 
-Pull the repo.
+1. Pull the repo from [https://github.com/Affirm/R.swift](https://github.com/Affirm/R.swift)
 
-Develop off of `affirm-main`.
-This is the branch with all the Affirm specific stuff so we can pull the `master` branch and rebase
-`affirm-main` onto it, preserving our changes when updating to the latest R.swift.
+2. Create your development branch off of `affirm-main` branch. The `affirm-main` is our main branch
+   with all the Affirm specific changes.
 
-To make changes, pull affirm-main and create your development branch from it.
-When opening a PR, use `affirm-main` as the base branch. You'll need to
+3. When opening a PR, use `affirm-main` as the base branch and land your changes there. You'll need
+   a PR review to land to `affirm-main`.
 
-## Command Line Build
+4. You can open the R.swift `Package.swift` in Xcode like a project file and code using the IDE.
 
+The R.swift coding philosophy is helpful in understanding why their design choices:
+[R.swift development philosophy](https://github.com/mac-cain13/R.swift/issues/177)
+
+We don't strictly follow this but it's nice to know.
+
+### Command Line Builds
+
+```bash
 cd ./R.swift
 swift build # Build for debug.
 swift test  # Run tests
-swift build -c release # Build a release version.
-
-swift build -c release --arch arm64 --arch x86_64 # Fat binary.
-
-Coding philosophy:
-https://github.com/mac-cain13/R.swift/issues/177
-
+swift build -c release --arch arm64 --arch x86_64 # Make a fat binary.
 ```
-      static func AffirmLocalizedString(_ key: String, tableName: String, bundle: Bundle, comment: String) -> String {
-        let result = NSLocalizedString(key, tableName: tableName, bundle: bundle, comment: comment)
-        return (tableName.lowercased() == "sensitive" && result == key) ? "" : result
-      }
 
-      static func AffirmDisplayKey(_ key: String, tableName: String) -> String {
-        return (tableName.lowercased() == "sensitive") ? "" : key
-      }
+The build products are in the `./.build` folder which is helpfully a hidden dot directory. Open it
+with `open ./build` and it'll open in a Finder window.
 
-      static func AffirmLocalizedString(_ stringResource: Rswift.StringResource, preferredLanguages: [String]?) -> String {
-        guard let preferredLanguages = preferredLanguages else {
-          return AffirmLocalizedString(stringResource.key, tableName: stringResource.tableName, bundle: hostingBundle, comment: "")
-        }
+## Updating R.Swift to the latest version.
 
-        guard let (_, bundle) = localeBundle(tableName: stringResource.tableName, preferredLanguages: preferredLanguages) else {
-          return AffirmDisplayKey(stringResource.key, tableName: stringResource.tableName)
-        }
-        return AffirmLocalizedString(stringResource.key, tableName: stringResource.tableName, bundle: bundle, comment: "")
-      }
+All the Affirm changes are on `affirm-main` so we can pull the fork origin `master` branch and rebase
+`affirm-main` onto it, preserving our changes when updating to the latest R.swift.
 
-      #if false
-      /// en translation: Example string
-      ///
-      /// Locales: en, en-CA, fr-CA
-      static func exampleString(preferredLanguages: [String]? = [affirm_preferredLanguageIdentifier]) -> String {
-        guard let preferredLanguages = preferredLanguages else {
-          return NSLocalizedString("example.string", tableName: "Sensitive", bundle: hostingBundle, comment: "")
-        }
-
-        guard let (_, bundle) = localeBundle(tableName: "Sensitive", preferredLanguages: preferredLanguages) else {
-          return "example.string"
-        }
-
-        return NSLocalizedString("example.string", tableName: "Sensitive", bundle: bundle, comment: "")
-      }
-      #else
-      static func exampleString(preferredLanguages: [String]? = [affirm_preferredLanguageIdentifier]) -> String {
-        return AffirmLocalizedString(exampleString, preferredLanguages: preferredLanguages)
-      }
-      #endif
-```
+1. Checkout `master`.
+2. Pull from their remote to refresh our master.
+3. Rebase `affirm-main` on top off the new master.
