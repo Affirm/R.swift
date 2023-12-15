@@ -18,7 +18,7 @@ Code generation extensions:
 
 * Added `AffirmLocalizedString` and `AffirmDisplayKey` to R.swift string generation to prevent
   leaking string key names if a language bundle is not found. This is only affects keys in
-  `Sensitive.strings` language tables.
+  `Confidential.strings` language tables.
 
 ## R.Swift Overview
 
@@ -32,7 +32,7 @@ R.swift this will no longer be needed as this will be included as part of the co
 
 ## Development Process
 
-1. Pull the repo from [https://github.com/Affirm/R.swift](https://github.com/Affirm/R.swift)
+1. Pull the repo from [https://github.com/Affirm/R.swift](https://github.com/Affirm/R.swift).
 
 2. Create your development branch off of `affirm-main` branch. The `affirm-main` is the branch
    with all the Affirm specific changes.
@@ -68,3 +68,4 @@ branch and rebase `affirm-main` onto it, preserving our changes when updating to
 1. Checkout `master`.
 2. Pull from their remote to refresh our master and push.
 3. Rebase `affirm-main` on top off the new master.
+4. Rebuild our tool.

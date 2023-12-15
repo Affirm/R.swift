@@ -35,7 +35,7 @@ struct StringsStructGenerator: ExternalOnlyStructGenerator {
 
     let AffirmLocalizedString = Function(
       availables: [],
-      comments: ["Returns an NSLocalizedString with the key hidden for sensitive strings."],
+      comments: ["Returns an NSLocalizedString with the key hidden for confidential strings."],
       accessModifier: externalAccessLevel,
       isStatic: true,
       name: "AffirmLocalizedString",
@@ -67,13 +67,13 @@ struct StringsStructGenerator: ExternalOnlyStructGenerator {
       returnType: Type._String,
       body: """
         let result = NSLocalizedString(key, tableName: tableName, bundle: bundle, comment: comment)
-        return (tableName.lowercased() == "sensitive" && result == key) ? "" : result
+        return (tableName.lowercased() == "confidential" && result == key) ? "" : result
         """,
       os: []
     )
     let AffirmDisplayKey = Function(
       availables: [],
-      comments: ["Returns a sanitized key if tableName is 'sensitive'."],
+      comments: ["Returns a sanitized key if tableName is 'confidential'."],
       accessModifier: externalAccessLevel,
       isStatic: true,
       name: "AffirmDisplayKey",
@@ -94,7 +94,7 @@ struct StringsStructGenerator: ExternalOnlyStructGenerator {
       doesThrow: false,
       returnType: Type._String,
       body: """
-        return (tableName.lowercased() == "sensitive") ? "" : key
+        return (tableName.lowercased() == "confidential") ? "" : key
         """,
       os: []
     )
